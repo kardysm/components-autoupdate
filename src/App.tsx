@@ -3,12 +3,13 @@ import './App.css';
 import semver from 'semver';
 
 type SemVer = string & { readonly type: unique symbol }
+type SemVerRange = SemVer;
 type ComponentName = string & { readonly type: unique symbol }
 
 type Component = {
   name: ComponentName
   version: SemVer
-  range: SemVer
+  range: SemVerRange
 }
 
 type ComponentPackage = unknown;
