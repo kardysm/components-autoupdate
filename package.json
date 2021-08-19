@@ -39,5 +39,26 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kardysm/components-autoupdate.git"
+  },
+  "keywords": [
+    "components",
+    "autoupdate",
+    "update",
+    "semver",
+    "server",
+    "ui"
+  ],
+  "author": "\"Michał Kardyś\" <michal@kardys.dev>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kardysm/components-autoupdate/issues"
+  },
+  "homepage": "https://github.com/kardysm/components-autoupdate#readme"
 }
