@@ -1,4 +1,3 @@
-import React from 'react';
 import './App.css';
 import semver from 'semver';
 
@@ -79,15 +78,20 @@ const versions = (() => ({
     },
   })
 )()
-const load = (component: Component): ComponentPackage {
+const load = (component: Component): ComponentPackage => {
     return '';
-  };
+  }
 
 function loadComponent(requireComponent: RequireComponent) {
   const version = versions.findCompatible(requireComponent)
+
+  if(version === NO_COMPATIBLE_FOUND){
+    return null;
+  }
+
   const component = {name: requireComponent.name, version: version};
 
-  return load.run(component);
+  return load(component);
 }
 
 const App = () => {
