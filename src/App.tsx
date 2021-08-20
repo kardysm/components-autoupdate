@@ -17,34 +17,70 @@ type RequireComponent = {
 
 type ComponentPackage = unknown;
 
-const versions = {
-  loaded(name: ComponentName): SemVer[] {
+const versions = () => ({
+  load: function (){
+    return ({
+      local(name: ComponentName): SemVer[] {
 
-    //indexedDB -> component:version
-    return [];
-  },
+        //indexedDB -> component:version
+        return [];
+      },
 
-  getLocal(name: ComponentName){
+      remote(name: ComponentName): {versions: SemVer[], latest: SemVer} {
+        //registry name
+        //fetch component data
+        return {
+          versions: [],
+          latest: '' as SemVer
+        }
+      },
+    })
+  }(),
 
-  },
+  match: function (range: SemVerRange){
+    const {load, maxSatisfying} = this;
+  return ({
+    local(name: ComponentName) {
+      const versions = load.local(name);
+      maxSatisfying(versions, range)
 
-  getRemote(name: ComponentName){
+    },
 
-  },
+    remote(name: ComponentName) {
+      const remote = load.remote(name);
+      const latest = this.latest(remote.latest)
+      if (latest){
+        return latest;
+      }
 
-  register(name: ComponentName, version: SemVer){
+      return maxSatisfying(remote.versions, range)
+
+    },
+
+    latest(version: SemVer) {
+      return maxSatisfying([version], range);
+    }
+  })
+},
+
+  register(name: ComponentName, version: SemVer) {
     //register component's version
   },
 
-  maxSatisfying(versions: SemVer[], range: SemVer) {
+  maxSatisfying(versions: SemVer[], range: SemVerRange) {
     return semver.maxSatisfying(versions, range)
   },
 
   findCompatible(component: RequireComponent) {
-    const versions = this.loaded(component.name);
+    const versions = this.local(component.name);
+
+    //matchLocal
+    //matchLatest
+    //matchRemote
     return this.maxSatisfying(versions, component.range);
   },
-}
+})
+
 const load = {
   run(component: Component): ComponentPackage {
     return '';
@@ -58,7 +94,7 @@ const load = {
   // }
 }
 
-function loadComponent(requireComponent: RequireComponent){
+function loadComponent(requireComponent: RequireComponent) {
   const version = versions.findCompatible(requireComponent)
   const component = {name: requireComponent.name, version: version};
 
