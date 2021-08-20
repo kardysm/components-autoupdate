@@ -28,22 +28,24 @@ function findCompatible(component: Component) {
   return maxSatysfying(versions, component.range);
 }
 
-function loadFromMemory(component: Component): ComponentPackage {
-  return '';
-}
+const load = {
+  fromMemory(component: Component): ComponentPackage {
+    return '';
+  },
 
-function loadExternal(component: Component): ComponentPackage {
-  return ''
+  external(component: Component): ComponentPackage {
+    return ''
+  }
 }
 
 function loadComponent(component: Component){
   const compatibleVersion = findCompatible(component)
 
   if (compatibleVersion){
-    return loadFromMemory({ ...component, version: compatibleVersion})
+    return load.fromMemory({ ...component, version: compatibleVersion})
   }
 
-  return loadExternal(component)
+  return load.external(component)
 }
 
 const App = () => {
