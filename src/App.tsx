@@ -17,7 +17,12 @@ type ComponentPackage = unknown;
 const versions = {
   loaded(name: ComponentName): SemVer[] {
 
+    //indexedDB -> component:version
     return [];
+  },
+
+  register(name: ComponentName, version: SemVer){
+    //register component's version
   },
 
   maxSatysfying(versions: SemVer[], range: SemVer) {
