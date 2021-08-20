@@ -24,11 +24,11 @@ const versions = {
     return [];
   },
 
-  getLocal(){
+  getLocal(name: ComponentName){
 
   },
 
-  getRemote(){
+  getRemote(name: ComponentName){
 
   },
 
@@ -36,13 +36,13 @@ const versions = {
     //register component's version
   },
 
-  maxSatysfying(versions: SemVer[], range: SemVer) {
-    return semver.maxSatysfying(versions, range)
+  maxSatisfying(versions: SemVer[], range: SemVer) {
+    return semver.maxSatisfying(versions, range)
   },
 
   findCompatible(component: RequireComponent) {
     const versions = this.loaded(component.name);
-    return this.maxSatysfying(versions, component.range);
+    return this.maxSatisfying(versions, component.range);
   },
 }
 const load = {
