@@ -14,20 +14,21 @@ type Component = {
 
 type ComponentPackage = unknown;
 
-function loadedVersions(name: ComponentName): SemVer[] {
+const versions = {
+  loaded(name: ComponentName): SemVer[] {
 
-  return [];
+    return [];
+  },
+
+  maxSatysfying(versions: SemVer[], range: SemVer) {
+    return semver.maxSatysfying(versions, range)
+  },
+
+  findCompatible(component: Component) {
+    const versions = this.loaded(component.name);
+    return this.maxSatysfying(versions, component.range);
+  },
 }
-
-function maxSatysfying(versions: SemVer[], range: SemVer){
-  return semver.maxSatysfying(versions, range)
-}
-
-function findCompatible(component: Component) {
-  const versions = loadedVersions(component.name);
-  return maxSatysfying(versions, component.range);
-}
-
 const load = {
   fromMemory(component: Component): ComponentPackage {
     return '';
@@ -39,7 +40,7 @@ const load = {
 }
 
 function loadComponent(component: Component){
-  const compatibleVersion = findCompatible(component)
+  const compatibleVersion = versions.findCompatible(component)
 
   if (compatibleVersion){
     return load.fromMemory({ ...component, version: compatibleVersion})
