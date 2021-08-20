@@ -17,82 +17,71 @@ type RequireComponent = {
 
 type ComponentPackage = unknown;
 
-const versions = () => ({
-  load: function (){
-    return ({
-      local(name: ComponentName): SemVer[] {
+const NO_COMPATIBLE_FOUND = 'NO_COMPATIBLE_FOUND';
 
-        //indexedDB -> component:version
-        return [];
-      },
+const versions = (() => ({
+    load: function () {
+      return ({
+        local(name: ComponentName): SemVer[] {
 
-      remote(name: ComponentName): {versions: SemVer[], latest: SemVer} {
-        //registry name
-        //fetch component data
-        return {
-          versions: [],
-          latest: '' as SemVer
+          //indexedDB -> component:version
+          return [];
+        },
+
+        remote(name: ComponentName): { versions: SemVer[], latest: SemVer } {
+          //registry name
+          //fetch component data
+          return {
+            versions: [],
+            latest: '' as SemVer
+          }
+        },
+      })
+    }(),
+
+    match: function ({name, range}: RequireComponent) {
+      const {load, maxSatisfying} = this;
+      return ({
+        local() {
+          const versions = load.local(name);
+          return maxSatisfying(versions, range)
+        },
+
+        remote() {
+          const remote = load.remote(name);
+          const latest = this.single(remote.latest)
+          if (latest) {
+            return latest;
+          }
+
+          return maxSatisfying(remote.versions, range)
+
+        },
+
+        single(version: SemVer) {
+          return maxSatisfying([version], range);
         }
-      },
-    })
-  }(),
-
-  match: function (range: SemVerRange){
-    const {load, maxSatisfying} = this;
-  return ({
-    local(name: ComponentName) {
-      const versions = load.local(name);
-      maxSatisfying(versions, range)
-
+      })
     },
 
-    remote(name: ComponentName) {
-      const remote = load.remote(name);
-      const latest = this.latest(remote.latest)
-      if (latest){
-        return latest;
-      }
-
-      return maxSatisfying(remote.versions, range)
-
+    register(name: ComponentName, version: SemVer) {
+      //TODO: register component's version
     },
 
-    latest(version: SemVer) {
-      return maxSatisfying([version], range);
-    }
+    maxSatisfying(versions: SemVer[], range: SemVerRange) {
+      return semver.maxSatisfying(versions, range)
+    },
+
+    findCompatible(component: RequireComponent) {
+      const match = this.match(component);
+
+      return match.local() ?? match.remote() ?? NO_COMPATIBLE_FOUND;
+    },
   })
-},
-
-  register(name: ComponentName, version: SemVer) {
-    //register component's version
-  },
-
-  maxSatisfying(versions: SemVer[], range: SemVerRange) {
-    return semver.maxSatisfying(versions, range)
-  },
-
-  findCompatible(component: RequireComponent) {
-    const versions = this.local(component.name);
-
-    //matchLocal
-    //matchLatest
-    //matchRemote
-    return this.maxSatisfying(versions, component.range);
-  },
-})
-
-const load = {
-  run(component: Component): ComponentPackage {
+)()
+const load = (component: Component): ComponentPackage {
     return '';
-  }
-  // fromMemory(component: Component): ComponentPackage {
-  //   return '';
-  // },
-  //
-  // external(component: Component): ComponentPackage {
-  //   return ''
-  // }
-}
+  };
 
 function loadComponent(requireComponent: RequireComponent) {
   const version = versions.findCompatible(requireComponent)
