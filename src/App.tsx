@@ -9,6 +9,9 @@ type ComponentName = string & { readonly type: unique symbol }
 type Component = {
   name: ComponentName
   version: SemVer
+}
+type RequireComponent = {
+  name: ComponentName
   range: SemVerRange
 }
 
@@ -21,6 +24,14 @@ const versions = {
     return [];
   },
 
+  getLocal(){
+
+  },
+
+  getRemote(){
+
+  },
+
   register(name: ComponentName, version: SemVer){
     //register component's version
   },
@@ -29,29 +40,29 @@ const versions = {
     return semver.maxSatysfying(versions, range)
   },
 
-  findCompatible(component: Component) {
+  findCompatible(component: RequireComponent) {
     const versions = this.loaded(component.name);
     return this.maxSatysfying(versions, component.range);
   },
 }
 const load = {
-  fromMemory(component: Component): ComponentPackage {
+  run(component: Component): ComponentPackage {
     return '';
-  },
-
-  external(component: Component): ComponentPackage {
-    return ''
   }
+  // fromMemory(component: Component): ComponentPackage {
+  //   return '';
+  // },
+  //
+  // external(component: Component): ComponentPackage {
+  //   return ''
+  // }
 }
 
-function loadComponent(component: Component){
-  const compatibleVersion = versions.findCompatible(component)
+function loadComponent(requireComponent: RequireComponent){
+  const version = versions.findCompatible(requireComponent)
+  const component = {name: requireComponent.name, version: version};
 
-  if (compatibleVersion){
-    return load.fromMemory({ ...component, version: compatibleVersion})
-  }
-
-  return load.external(component)
+  return load.run(component);
 }
 
 const App = () => {
