@@ -18,18 +18,22 @@ type ComponentPackage = unknown;
 
 const NO_COMPATIBLE_FOUND = 'NO_COMPATIBLE_FOUND';
 
+//TODO: tests
+//TODO: DB driver
+//TODO: registry interceptor
+
 const versions = (() => ({
     load: function () {
       return ({
         local(name: ComponentName): SemVer[] {
 
-          //indexedDB -> component:version
+          //TODO: indexedDB -> component:version
           return [];
         },
 
         remote(name: ComponentName): { versions: SemVer[], latest: SemVer } {
-          //registry name
-          //fetch component data
+          //TODO: registry name
+          //TODO: fetch component data
           return {
             versions: [],
             latest: '' as SemVer
@@ -79,6 +83,7 @@ const versions = (() => ({
   })
 )()
 const load = (component: Component): ComponentPackage => {
+  //TODO default loader
     return '';
   }
 
