@@ -74,17 +74,13 @@ const versionStorage = (store?: Store, prefix?: string) => {
   })
 }
 
-const version = ((storageApi: StorageAPI) => {
-  const {get, set, add} = storageApi;
+const version = ((versionStorageApi: StorageAPI) => {
+  const {get, set, add} = versionStorageApi;
 
   return ({
     load: (() => ({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       local(name: ComponentName): SemVer[] {
-
-
-        // TODO: indexedDB -> component:version
-        return [];
+        return get(name)
       },
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
