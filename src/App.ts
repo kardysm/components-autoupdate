@@ -24,7 +24,11 @@ const PARSE_ERROR = 'failed to parse local storage data';
 // TODO: tests
 // TODO: registry interceptor
 
-const storage = (store: Store = localStorage, prefix?: string) => {
+type StorageAPI = ReturnType<typeof versionStorage>;
+
+const versionStorage = (store?: Store, prefix?: string) => {
+  const {getItem, setItem} = store ?? localStorage;
+
   function key(name: ComponentName){
     const pref = prefix ?? DEFAULT_STORAGE_PREFIX;
     return `${pref}:${name}`;
@@ -46,14 +50,14 @@ const storage = (store: Store = localStorage, prefix?: string) => {
     }
 
   function get (name: ComponentName): SemVer[] {
-    const serialized = store.getItem(key(name))
+    const serialized = getItem(key(name))
 
     return deserialize(serialized);
   }
     function set  (name: ComponentName, versions: SemVer[]): void {
     const serialized = serialize(versions)
 
-    store.setItem(key(name),serialized);
+      setItem(key(name),serialized);
   }
 
   function add(name: ComponentName, version: SemVer): void {
@@ -70,7 +74,10 @@ const storage = (store: Store = localStorage, prefix?: string) => {
   })
 }
 
-const version = (() => ({
+const version = ((storageApi: StorageAPI) => {
+  const {get, set, add} = storageApi;
+
+  return ({
     load: (() => ({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       local(name: ComponentName): SemVer[] {
@@ -91,7 +98,7 @@ const version = (() => ({
       },
     }))(),
 
-    match ({name, range}: RequireComponent) {
+    match({name, range}: RequireComponent) {
       const {load, maxSatisfying} = this;
       return ({
         local() {
@@ -130,23 +137,33 @@ const version = (() => ({
       return match.local() ?? match.remote() ?? NO_COMPATIBLE_FOUND;
     },
   })
-)()
+})
 
 // TODO default loader
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const load = (component: Component): ComponentPackage =>  ''
 
-function loadComponent(requireComponent: RequireComponent) {
-  const compatible = version.findCompatible(requireComponent)
+const loadComponent = (versionApi: ReturnType<typeof version>) => {
+  const {findCompatible} = versionApi;
 
-  if(compatible === NO_COMPATIBLE_FOUND){
-    return null;
+  return (requireComponent: RequireComponent) => {
+    const compatible = findCompatible(requireComponent)
+
+    if (compatible === NO_COMPATIBLE_FOUND) {
+      return null;
+    }
+
+    const component = {name: requireComponent.name, version: compatible};
+
+    return load(component);
   }
+}
+function init(storage?: Store, prefix?: string){
+  const storeApi = versionStorage(storage, prefix);
+  const versionApi = version(storeApi);
 
-  const component = {name: requireComponent.name, version: compatible};
-
-  return load(component);
+  return loadComponent(versionApi);
 }
 
-const App = () => loadComponent
+const App = init
 export default App;
