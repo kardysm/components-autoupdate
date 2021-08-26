@@ -4,10 +4,12 @@ import {resolve as resolvePath} from "path";
 import 'ts-generic-fetch'
 
 type SemVer = string & { readonly type: unique symbol }
-type SemVerRange = SemVer;
+type SemVerRange = SemVer
 type ComponentName = string & { readonly type: unique symbol }
 
 type Store = Pick<Storage,'getItem'|'setItem'>
+
+type VersionData = unknown
 
 export interface Component {
   name: ComponentName
@@ -17,6 +19,15 @@ export interface Component {
 export interface RequireComponent {
   name: ComponentName
   range: SemVerRange
+}
+
+export interface VersionsRegistryExpectedResult {
+  "dist-tags": {
+    latest: SemVer
+  },
+  versions: {
+    [version: string]: VersionData
+  }
 }
 
 type ComponentPackage = unknown;
@@ -82,9 +93,9 @@ const fetcher = (registryUrl: string, options?: {fetchMethod?: typeof fetch, req
   const {fetchMethod, requestOptions} = options ?? {};
   const fn = fetchMethod ?? fetch;
 
-  async function requestData(url: string) {
+  async function requestData<Data>(url: string): Promise<Data> {
 
-    const result = await fn(url, requestOptions);
+    const result = await fn<Data>(url, requestOptions);
     try {
       return await result.json();
     } catch (error){
@@ -104,7 +115,7 @@ const fetcher = (registryUrl: string, options?: {fetchMethod?: typeof fetch, req
   function fetchVersions(componentName: ComponentName) {
     const url = versionsUrl(componentName);
 
-    return requestData(url)
+    return requestData<VersionsRegistryExpectedResult>(url)
   }
   function fetchComponent(component: Component) {
     const url = componentUrl(component);
