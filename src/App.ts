@@ -78,7 +78,7 @@ const localStorageProxy = () => {
 }
 
 type Store = ReturnType<typeof localStorageProxy>;
-const versionStorage = (store?: Store , prefix?: string) => {
+const versionStorage = (store?: Store, prefix?: string) => {
   const {getItem, setItem} = store ?? localStorageProxy();
 
   function key(name: ComponentName) {
@@ -111,16 +111,21 @@ const versionStorage = (store?: Store , prefix?: string) => {
 interface FetchVersions {
   fetchVersions(componentName: ComponentName): Promise<VersionsRegistryExpectedResult>,
 }
+
 interface FetchComponent {
   fetchComponent(component: Component): ComponentPackage
 }
 
-interface FetcherAPI extends FetchComponent, FetchVersions{
+interface FetcherAPI extends FetchComponent, FetchVersions {
 }
 
-const fetcher = (registryUrl: string, options?: { fetchMethod?: typeof fetch, requestOptions: RequestInit }) => {
-  const {fetchMethod, requestOptions} = options ?? {};
-  const fn = fetchMethod ?? fetch;
+interface Fetcher {
+  requestOptions: RequestInit
+}
+
+const fetcher = (registryUrl: string, options?: Fetcher) => {
+  const {requestOptions} = options ?? {};
+  const fn = fetch;
 
   async function requestData<Data>(url: string): Promise<Data> {
 
@@ -128,6 +133,7 @@ const fetcher = (registryUrl: string, options?: { fetchMethod?: typeof fetch, re
     try {
       return await result.json();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(`Component|repository: ${FETCH_ERROR}: ${error}`)
       return error;
     }
@@ -138,8 +144,8 @@ const fetcher = (registryUrl: string, options?: { fetchMethod?: typeof fetch, re
   }
 
   function componentUrl(component: Component) {
-    const compUrl = versionsUrl(component.name);
-    return resolvePath(compUrl, component.version);
+    const {version, name} = component;
+    return resolvePath(registryUrl, `${name}@${version}`);
   }
 
   function fetchVersions(componentName: ComponentName) {
@@ -151,7 +157,7 @@ const fetcher = (registryUrl: string, options?: { fetchMethod?: typeof fetch, re
   function fetchComponent(component: Component) {
     const url = componentUrl(component);
 
-    return requestData(url)
+    return import(url);
   }
 
   return {
@@ -159,6 +165,7 @@ const fetcher = (registryUrl: string, options?: { fetchMethod?: typeof fetch, re
     fetchComponent
   }
 }
+
 const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
   const {get, add} = versionStorageApi;
   const {fetchVersions} = fetcherApi;
@@ -239,8 +246,15 @@ const loadComponent = (versionApi: ReturnType<typeof versionsApi>) => {
   }
 }
 
-function init(options: { storage?: Store, prefix?: string, fetcher: FetcherAPI }) {
+interface InitOptions {
+  storage?: Store,
+  prefix?: string,
+  fetcher: FetcherAPI
+}
+
+function init(options: InitOptions) {
   const {storage, prefix, fetcher: externalFetcher} = options
+
   const fetcherApi = externalFetcher ?? fetcher
   const storeApi = versionStorage(storage, prefix)
   const versionApi = versionsApi(storeApi, fetcherApi);
