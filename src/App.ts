@@ -86,6 +86,9 @@ const versionStorage = (store?: Store, prefix?: string) => {
     return `${pref}:${name}`;
   }
 
+  function dedup(versions: SemVer[]) {
+    return [...new Set(versions)]
+  }
 
   function get(name: ComponentName): SemVer[] {
     return getItem(key(name))
