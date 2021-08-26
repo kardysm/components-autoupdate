@@ -1,7 +1,7 @@
 import semver from 'semver';
-import {fetch} from "msw/lib/types/context";
 import {resolve as resolvePath} from "path";
-
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'ts-generic-fetch'
 
 type SemVer = string & { readonly type: unique symbol }
 type SemVerRange = SemVer;
@@ -83,6 +83,7 @@ const fetcher = (registryUrl: string, options?: {fetchMethod?: typeof fetch, req
   const fn = fetchMethod ?? fetch;
 
   async function requestData(url: string) {
+
     const result = await fn(url, requestOptions);
     try {
       return await result.json();
