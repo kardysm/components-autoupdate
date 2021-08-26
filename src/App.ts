@@ -1,4 +1,7 @@
 import semver from 'semver';
+import {fetch} from "msw/lib/types/context";
+import {resolve as resolvePath} from "path";
+
 
 type SemVer = string & { readonly type: unique symbol }
 type SemVerRange = SemVer;
@@ -20,6 +23,7 @@ type ComponentPackage = unknown;
 const NO_COMPATIBLE_FOUND = 'NO_COMPATIBLE_FOUND';
 const DEFAULT_STORAGE_PREFIX = '@component-versions'
 const PARSE_ERROR = 'failed to parse local storage data';
+const FETCH_ERROR = 'an error occured during components repository request';
 
 // TODO: tests
 // TODO: registry interceptor
@@ -74,6 +78,43 @@ const versionStorage = (store?: Store, prefix?: string) => {
   })
 }
 
+const fetcher = (registryUrl: string, options?: {fetchMethod?: typeof fetch, requestOptions: RequestInit}) => {
+  const {fetchMethod, requestOptions} = options ?? {};
+  const fn = fetchMethod ?? fetch;
+
+  async function requestData(url: string) {
+    const result = await fn(url, requestOptions);
+    try {
+      return await result.json();
+    } catch (error){
+      console.log(`Component|repository: ${FETCH_ERROR}: ${error}`)
+      return error;
+    }
+  }
+
+  function versionsUrl(componentName: ComponentName) {
+    return resolvePath(registryUrl,componentName);
+  }
+  function componentUrl(component: Component) {
+    const compUrl = versionsUrl(component.name);
+    return resolvePath(compUrl,component.version);
+  }
+
+  function fetchVersions(componentName: ComponentName) {
+    const url = versionsUrl(componentName);
+
+    return requestData(url)
+  }
+  function fetchComponent(component: Component) {
+    const url = componentUrl(component);
+
+    return requestData(url)
+  }
+  return {
+    fetchVersions,
+    fetchComponent
+  }
+}
 const versionsApi = ((versionStorageApi: StorageAPI) => {
   const {get, set, add} = versionStorageApi;
 
@@ -141,7 +182,6 @@ const load = (component: Component): ComponentPackage =>  ''
 
 const loadComponent = (versionApi: ReturnType<typeof versionsApi>) => {
   const {findCompatible} = versionApi;
-
   return (requireComponent: RequireComponent) => {
     const compatible = findCompatible(requireComponent)
 
