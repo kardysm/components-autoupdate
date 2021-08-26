@@ -113,7 +113,7 @@ interface FetchVersions {
 }
 
 interface FetchComponent {
-  fetchComponent(component: Component): ComponentPackage
+  fetchComponent<T>(component: Component): Promise<T>
 }
 
 interface FetcherAPI extends FetchComponent, FetchVersions {
@@ -227,12 +227,9 @@ const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) 
   })
 })
 
-// TODO default loader
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const load = (component: Component): ComponentPackage => ''
-
-const loadComponent = (versionApi: ReturnType<typeof versionsApi>) => {
+const loadComponent = (versionApi: ReturnType<typeof versionsApi>, fetchApi: FetchComponent) => {
   const {findCompatible} = versionApi;
+  const {fetchComponent} = fetchApi
   return async (requireComponent: RequireComponent) => {
     const compatible = await findCompatible(requireComponent)
 
@@ -242,7 +239,7 @@ const loadComponent = (versionApi: ReturnType<typeof versionsApi>) => {
 
     const component = {name: requireComponent.name, version: compatible};
 
-    return load(component);
+    return fetchComponent(component);
   }
 }
 
