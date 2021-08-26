@@ -7,8 +7,6 @@ type SemVer = string & { readonly type: unique symbol }
 type SemVerRange = SemVer
 type ComponentName = string & { readonly type: unique symbol }
 
-type Store = Pick<Storage,'getItem'|'setItem'>
-
 type VersionData = unknown
 
 export interface Component {
@@ -30,6 +28,10 @@ export interface VersionsRegistryExpectedResult {
   }
 }
 
+function isSemVer(str: string): str is SemVer {
+  return semver.valid(str) !== null
+}
+
 type ComponentPackage = unknown;
 const NO_COMPATIBLE_FOUND = 'NO_COMPATIBLE_FOUND';
 const DEFAULT_STORAGE_PREFIX = '@component-versions'
@@ -41,55 +43,82 @@ const FETCH_ERROR = 'an error occured during components repository request';
 
 type StorageAPI = ReturnType<typeof versionStorage>;
 
-const versionStorage = (store?: Store, prefix?: string) => {
-  const {getItem, setItem} = store ?? localStorage;
-
-  function key(name: ComponentName){
-    const pref = prefix ?? DEFAULT_STORAGE_PREFIX;
-    return `${pref}:${name}`;
-  }
+const localStorageProxy = () => {
   function deserialize(data: string | null): SemVer[] {
-    if(data === null){
+    if (data === null) {
       return []
     }
     try {
       return JSON.parse(data)
-    } catch (e){
+    } catch (e) {
       // eslint-disable-next-line no-console
       console.error(`Versions|storage: ${PARSE_ERROR}: ${data}`)
       return []
     }
   }
-    function serialize<T>(data: T[]): string {
-      return JSON.stringify(data)
-    }
 
-  function get (name: ComponentName): SemVer[] {
-    const serialized = getItem(key(name))
+  function serialize<T>(data: T[]): string {
+    return JSON.stringify(data)
+  }
 
+  function getItem(key: string) {
+    const serialized = localStorage.getItem(key);
     return deserialize(serialized);
   }
-    function set  (name: ComponentName, versions: SemVer[]): void {
-    const serialized = serialize(versions)
 
-      setItem(key(name),serialized);
+  function setItem(key: string, data: SemVer[]) {
+    const serialized = serialize(data);
+    localStorage.setItem(key, serialized);
+  }
+
+  return {
+    getItem,
+    setItem
+  }
+}
+
+type Store = ReturnType<typeof localStorageProxy>;
+const versionStorage = (store?: Store , prefix?: string) => {
+  const {getItem, setItem} = store ?? localStorageProxy();
+
+  function key(name: ComponentName) {
+    const pref = prefix ?? DEFAULT_STORAGE_PREFIX;
+    return `${pref}:${name}`;
+  }
+
+
+  function get(name: ComponentName): SemVer[] {
+    return getItem(key(name))
+  }
+
+  function set(name: ComponentName, versions: SemVer[]): void {
+    setItem(key(name), versions);
   }
 
   function add(name: ComponentName, version: SemVer): void {
     const currentVersions = get(name);
 
-    set(name,  [...currentVersions,version])
+    set(name, [...currentVersions, version])
   }
 
   return ({
     get,
     set,
     add
-
   })
 }
 
-const fetcher = (registryUrl: string, options?: {fetchMethod?: typeof fetch, requestOptions: RequestInit}) => {
+interface FetchVersions {
+  fetchVersions(componentName: ComponentName): Promise<VersionsRegistryExpectedResult>,
+}
+interface FetchComponent {
+  fetchComponent(component: Component): ComponentPackage
+}
+
+interface FetcherAPI extends FetchComponent, FetchVersions{
+}
+
+const fetcher = (registryUrl: string, options?: { fetchMethod?: typeof fetch, requestOptions: RequestInit }) => {
   const {fetchMethod, requestOptions} = options ?? {};
   const fn = fetchMethod ?? fetch;
 
@@ -98,18 +127,19 @@ const fetcher = (registryUrl: string, options?: {fetchMethod?: typeof fetch, req
     const result = await fn<Data>(url, requestOptions);
     try {
       return await result.json();
-    } catch (error){
+    } catch (error) {
       console.log(`Component|repository: ${FETCH_ERROR}: ${error}`)
       return error;
     }
   }
 
   function versionsUrl(componentName: ComponentName) {
-    return resolvePath(registryUrl,componentName);
+    return resolvePath(registryUrl, componentName);
   }
+
   function componentUrl(component: Component) {
     const compUrl = versionsUrl(component.name);
-    return resolvePath(compUrl,component.version);
+    return resolvePath(compUrl, component.version);
   }
 
   function fetchVersions(componentName: ComponentName) {
@@ -117,18 +147,21 @@ const fetcher = (registryUrl: string, options?: {fetchMethod?: typeof fetch, req
 
     return requestData<VersionsRegistryExpectedResult>(url)
   }
+
   function fetchComponent(component: Component) {
     const url = componentUrl(component);
 
     return requestData(url)
   }
+
   return {
     fetchVersions,
     fetchComponent
   }
 }
-const versionsApi = ((versionStorageApi: StorageAPI) => {
-  const {get, set, add} = versionStorageApi;
+const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
+  const {get, add} = versionStorageApi;
+  const {fetchVersions} = fetcherApi;
 
   return ({
     load: (() => ({
@@ -136,13 +169,12 @@ const versionsApi = ((versionStorageApi: StorageAPI) => {
         return get(name)
       },
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      remote(name: ComponentName): { versions: SemVer[], latest: SemVer } {
-        // TODO: registry name
-        // TODO: fetch component data
+      async remote(name: ComponentName): Promise<{ versions: SemVer[], latest: SemVer }> {
+        const moduleMetadata = await fetchVersions(name);
+
         return {
-          versions: [],
-          latest: '' as SemVer
+          versions: Object.keys(moduleMetadata.versions).filter(isSemVer),
+          latest: moduleMetadata?.["dist-tags"]?.latest
         }
       },
     }))(),
@@ -155,8 +187,8 @@ const versionsApi = ((versionStorageApi: StorageAPI) => {
           return maxSatisfying(versions, range)
         },
 
-        remote() {
-          const remote = load.remote(name);
+        async remote() {
+          const remote = await load.remote(name);
           const latest = this.single(remote.latest)
           if (latest) {
             return latest;
@@ -172,7 +204,7 @@ const versionsApi = ((versionStorageApi: StorageAPI) => {
       })
     },
 
-    register( name: ComponentName, version: SemVer ) {
+    register(name: ComponentName, version: SemVer) {
       add(name, version)
     },
 
@@ -180,22 +212,22 @@ const versionsApi = ((versionStorageApi: StorageAPI) => {
       return semver.maxSatisfying(versions, range)
     },
 
-    findCompatible(component: RequireComponent) {
+    async findCompatible(component: RequireComponent) {
       const match = this.match(component);
 
-      return match.local() ?? match.remote() ?? NO_COMPATIBLE_FOUND;
+      return match.local() ?? await match.remote() ?? NO_COMPATIBLE_FOUND;
     },
   })
 })
 
 // TODO default loader
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const load = (component: Component): ComponentPackage =>  ''
+const load = (component: Component): ComponentPackage => ''
 
 const loadComponent = (versionApi: ReturnType<typeof versionsApi>) => {
   const {findCompatible} = versionApi;
-  return (requireComponent: RequireComponent) => {
-    const compatible = findCompatible(requireComponent)
+  return async (requireComponent: RequireComponent) => {
+    const compatible = await findCompatible(requireComponent)
 
     if (compatible === NO_COMPATIBLE_FOUND) {
       return null;
@@ -206,9 +238,12 @@ const loadComponent = (versionApi: ReturnType<typeof versionsApi>) => {
     return load(component);
   }
 }
-function init(storage?: Store, prefix?: string){
-  const storeApi = versionStorage(storage, prefix);
-  const versionApi = versionsApi(storeApi);
+
+function init(options: { storage?: Store, prefix?: string, fetcher: FetcherAPI }) {
+  const {storage, prefix, fetcher: externalFetcher} = options
+  const fetcherApi = externalFetcher ?? fetcher
+  const storeApi = versionStorage(storage, prefix)
+  const versionApi = versionsApi(storeApi, fetcherApi);
 
   return loadComponent(versionApi);
 }
