@@ -4,6 +4,8 @@ type SemVer = string & { readonly type: unique symbol }
 type SemVerRange = SemVer;
 type ComponentName = string & { readonly type: unique symbol }
 
+type Store = Pick<Storage,'getItem'|'setItem'>
+
 export interface Component {
   name: ComponentName
   version: SemVer
@@ -15,12 +17,57 @@ export interface RequireComponent {
 }
 
 type ComponentPackage = unknown;
-
 const NO_COMPATIBLE_FOUND = 'NO_COMPATIBLE_FOUND';
+const DEFAULT_STORAGE_PREFIX = '@component-versions'
+const PARSE_ERROR = 'failed to parse local storage data';
 
 // TODO: tests
-// TODO: DB driver
 // TODO: registry interceptor
+
+const storage = (store: Store = localStorage, prefix: string) => {
+  function key(name: ComponentName){
+    return `${prefix}:${name}`;
+  }
+  function deserialize(data: string | null): SemVer[] {
+    if(data === null){
+      return []
+    }
+    try {
+      return JSON.parse(data)
+    } catch (e){
+      // eslint-disable-next-line no-console
+      console.error(`Versions|storage: ${PARSE_ERROR}: ${data}`)
+      return []
+    }
+  }
+    function serialize<T>(data: T[]): string {
+      return JSON.stringify(data)
+    }
+
+  function get (name: ComponentName): SemVer[] {
+    const serialized = store.getItem(key(name))
+
+    return deserialize(serialized);
+  }
+    function set  (name: ComponentName, versions: SemVer[]): void {
+    const serialized = serialize(versions)
+
+    store.setItem(key(name),serialized);
+  }
+
+  function add(name: ComponentName, version: SemVer): void {
+    const currentVersions = get(name);
+
+    set(name,  [...currentVersions,version])
+  }
+
+  return ({
+    get,
+    set,
+    add
+
+  })
+}
 
 const version = (() => ({
     load: (() => ({
