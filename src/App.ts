@@ -74,7 +74,7 @@ const versionStorage = (store?: Store, prefix?: string) => {
   })
 }
 
-const version = ((versionStorageApi: StorageAPI) => {
+const versionsApi = ((versionStorageApi: StorageAPI) => {
   const {get, set, add} = versionStorageApi;
 
   return ({
@@ -119,8 +119,8 @@ const version = ((versionStorageApi: StorageAPI) => {
       })
     },
 
-    register(/* name: ComponentName, version: SemVer */) {
-      // TODO: register component's version
+    register( name: ComponentName, version: SemVer ) {
+      add(name, version)
     },
 
     maxSatisfying(versions: SemVer[], range: SemVerRange) {
@@ -139,7 +139,7 @@ const version = ((versionStorageApi: StorageAPI) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const load = (component: Component): ComponentPackage =>  ''
 
-const loadComponent = (versionApi: ReturnType<typeof version>) => {
+const loadComponent = (versionApi: ReturnType<typeof versionsApi>) => {
   const {findCompatible} = versionApi;
 
   return (requireComponent: RequireComponent) => {
@@ -156,7 +156,7 @@ const loadComponent = (versionApi: ReturnType<typeof version>) => {
 }
 function init(storage?: Store, prefix?: string){
   const storeApi = versionStorage(storage, prefix);
-  const versionApi = version(storeApi);
+  const versionApi = versionsApi(storeApi);
 
   return loadComponent(versionApi);
 }
