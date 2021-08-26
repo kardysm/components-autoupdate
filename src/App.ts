@@ -254,9 +254,10 @@ function init(options: InitOptions) {
 
   const fetcherApi = externalFetcher ?? fetcher
   const storeApi = versionStorage(storage, prefix)
+
   const versionApi = versionsApi(storeApi, fetcherApi);
 
-  return loadComponent(versionApi);
+  return loadComponent(versionApi, fetcherApi);
 }
 
 const App = init
