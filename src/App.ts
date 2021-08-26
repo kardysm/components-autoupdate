@@ -24,9 +24,10 @@ const PARSE_ERROR = 'failed to parse local storage data';
 // TODO: tests
 // TODO: registry interceptor
 
-const storage = (store: Store = localStorage, prefix: string) => {
+const storage = (store: Store = localStorage, prefix?: string) => {
   function key(name: ComponentName){
-    return `${prefix}:${name}`;
+    const pref = prefix ?? DEFAULT_STORAGE_PREFIX;
+    return `${pref}:${name}`;
   }
   function deserialize(data: string | null): SemVer[] {
     if(data === null){
@@ -73,6 +74,7 @@ const version = (() => ({
     load: (() => ({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       local(name: ComponentName): SemVer[] {
+
 
         // TODO: indexedDB -> component:version
         return [];
