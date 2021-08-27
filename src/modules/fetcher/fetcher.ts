@@ -13,7 +13,7 @@ export interface FetchComponent {
   fetchComponent<T>(component: Component): Promise<T>
 }
 
-export interface FetcherAPI extends FetchComponent, FetchVersions {}
+export interface FetcherApi extends FetchComponent, FetchVersions {}
 
 interface Fetcher {
   requestOptions: RequestInit

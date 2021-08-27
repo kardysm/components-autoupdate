@@ -3,7 +3,7 @@ import "ts-generic-fetch"
 import {
   componentImporter,
   fetcher,
-  FetcherAPI,
+  FetcherApi,
   isSemVer, isSemVerRange,
   SemVer,
   SemVerRange,
@@ -16,10 +16,10 @@ import {
 interface InitOptions {
   storage?: Store
   prefix?: string
-  fetcher: FetcherAPI
+  fetcher: FetcherApi
 }
 
-export type { Store, FetcherAPI, SemVer, SemVerRange }
+export type { Store, FetcherApi, SemVer, SemVerRange }
 
 export function init(options: InitOptions) {
   const { storage, prefix, fetcher: externalFetcher } = options
