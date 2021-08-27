@@ -1,7 +1,7 @@
-import { RequireComponent } from "./Component.types"
-import { NO_COMPATIBLE_FOUND } from "./constants"
-import { versions } from "./versions"
-import { FetchComponent } from "./fetcher"
+import { RequireComponent } from "../helper-types/component/Component.types"
+import { NO_COMPATIBLE_FOUND } from "../../constants"
+import { versions } from "../versions"
+import { FetchComponent } from "../fetcher"
 
 export const loadComponent = (
   versionApi: ReturnType<typeof versions>,

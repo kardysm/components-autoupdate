@@ -1,4 +1,4 @@
-import { SemVer } from "./isSemVer"
+import { SemVer } from "../../semver"
 
 type VersionData = unknown
 

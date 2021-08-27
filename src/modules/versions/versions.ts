@@ -1,10 +1,9 @@
 import semver from "semver"
-import { NO_COMPATIBLE_FOUND } from "./constants"
-import { ComponentName, RequireComponent } from "./Component.types"
-import { FetchVersions } from "./fetcher"
+import { NO_COMPATIBLE_FOUND } from "../../constants"
+import { ComponentName, RequireComponent } from "../helper-types/component"
+import { FetchVersions } from "../fetcher"
 import { versionStorage } from "./versionStorage"
-import { isSemVer, SemVer } from "./isSemVer"
-import { SemVerRange } from "./isSemVerRange"
+import {isSemVer, SemVer, SemVerRange} from "../semver"
 
 type StorageAPI = ReturnType<typeof versionStorage>
 

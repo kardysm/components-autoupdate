@@ -1,7 +1,7 @@
 import { resolve as resolvePath } from "path"
-import { FETCH_ERROR } from "./constants"
-import { Component, ComponentName } from "./Component.types"
-import { VersionsRegistryExpectedResult } from "./externalApi.types"
+import { FETCH_ERROR } from "../../constants"
+import { Component, ComponentName } from "../helper-types/component"
+import { VersionsRegistryExpectedResult } from "../helper-types/externalPayload"
 
 export interface FetchVersions {
   fetchVersions(

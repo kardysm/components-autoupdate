@@ -1,6 +1,6 @@
-import { DEFAULT_STORAGE_PREFIX } from "./constants"
-import { ComponentName } from "./Component.types"
-import { SemVer } from "./isSemVer"
+import { DEFAULT_STORAGE_PREFIX } from "../../constants"
+import { ComponentName } from "../helper-types/component/Component.types"
+import { SemVer } from "../semver"
 import { localStorageProxy } from "./localStorageProxy"
 
 export type Store = ReturnType<typeof localStorageProxy>

@@ -1,11 +1,11 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import "ts-generic-fetch"
-import { loadComponent } from "./loadComponent"
-import { versions } from "./versions"
-import { fetcher, FetcherAPI } from "./fetcher"
-import { Store, versionStorage } from "./versionStorage"
-import {isSemVer, SemVer} from "./isSemVer";
-import {isSemVerRange, SemVerRange} from "./isSemVerRange";
+import { componentImporter } from "./modules/componentImporter"
+import { versions } from "./modules/versions"
+import { fetcher, FetcherAPI } from "./modules/fetcher"
+import { Store, versionStorage } from "./modules/versions/versionStorage"
+import {isSemVer, isSemVerRange, SemVer, SemVerRange} from "./modules/semver";
+import * as constants from './constants'
 
 interface InitOptions {
   storage?: Store
@@ -24,9 +24,10 @@ export function init(options: InitOptions) {
   const versionsApi = versions(storeApi, fetcherApi)
 
   return {
-    importComponent: loadComponent(versionsApi, fetcherApi),
+    importComponent: componentImporter(versionsApi, fetcherApi),
     registerVersion: versionsApi.register,
     isSemVer,
-    isSemVerRange
+    isSemVerRange,
+    constants
   }
 }

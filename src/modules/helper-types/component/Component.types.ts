@@ -1,5 +1,4 @@
-import { SemVer } from "./isSemVer"
-import { SemVerRange } from "./isSemVerRange"
+import {SemVer, SemVerRange} from "../../semver"
 
 export type ComponentName = string
 
