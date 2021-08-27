@@ -7,11 +7,11 @@ import {isSemVer, SemVer} from "./isSemVer";
 
 type StorageAPI = ReturnType<typeof versionStorage>;
 
-export const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
+export const versions = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
   const {get, add} = versionStorageApi;
   const {fetchVersions} = fetcherApi;
 
-  const load = (function () {
+  const load = (function loadVersions() {
       return ({
         local(name: ComponentName): SemVer[] {
           return get(name)

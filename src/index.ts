@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'ts-generic-fetch';
 import {loadComponent} from "./loadComponent";
-import {versionsApi} from "./versionsApi";
+import {versions} from "./versions";
 import {fetcher, FetcherAPI} from "./fetcher";
 import {Store, versionStorage} from "./versionStorage";
 
@@ -22,10 +22,10 @@ export function init(options: InitOptions) {
   const fetcherApi = externalFetcher ?? fetcher
   const storeApi = versionStorage(storage, prefix)
 
-  const versionApi = versionsApi(storeApi, fetcherApi);
+  const versionsApi = versions(storeApi, fetcherApi);
 
   return {
-    importComponent: loadComponent(versionApi, fetcherApi),
-    registerVersion: versionApi.register
+    importComponent: loadComponent(versionsApi, fetcherApi),
+    registerVersion: versionsApi.register
   };
 }

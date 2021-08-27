@@ -1,9 +1,9 @@
 import {RequireComponent} from "./App";
 import {NO_COMPATIBLE_FOUND} from "./constants";
-import {versionsApi} from "./versionsApi";
+import {versions} from "./versions";
 import {FetchComponent} from "./fetcher";
 
-export const loadComponent = (versionApi: ReturnType<typeof versionsApi>, fetchApi: FetchComponent) => {
+export const loadComponent = (versionApi: ReturnType<typeof versions>, fetchApi: FetchComponent) => {
   const {findCompatible} = versionApi;
   const {fetchComponent} = fetchApi
   return async (requireComponent: RequireComponent) => {
