@@ -3,7 +3,6 @@ import {SemVerRange} from "./isSemVerRange";
 
 export type ComponentName = string & { readonly type: unique symbol }
 
-type VersionData = unknown
 
 export interface Component {
   name: ComponentName
@@ -15,14 +14,6 @@ export interface RequireComponent {
   range: SemVerRange
 }
 
-export interface VersionsRegistryExpectedResult {
-  "dist-tags": {
-    latest: SemVer
-  },
-  versions: {
-    [version: string]: VersionData
-  }
-}
 
 
 
