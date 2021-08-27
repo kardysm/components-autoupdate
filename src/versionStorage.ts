@@ -34,7 +34,6 @@ export const versionStorage = (store?: Store, prefix?: string) => {
 
   return ({
     get,
-    set,
     add
   })
 }
