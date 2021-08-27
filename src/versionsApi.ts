@@ -11,59 +11,61 @@ export const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVer
   const {get, add} = versionStorageApi;
   const {fetchVersions} = fetcherApi;
 
-  return ({
-    load: (() => ({
-      local(name: ComponentName): SemVer[] {
-        return get(name)
-      },
-
-      async remote(name: ComponentName): Promise<{ versions: SemVer[], latest: SemVer }> {
-        const moduleMetadata = await fetchVersions(name);
-
-        return {
-          versions: Object.keys(moduleMetadata.versions).filter(isSemVer),
-          latest: moduleMetadata?.["dist-tags"]?.latest
-        }
-      },
-    }))(),
-
-    match({name, range}: RequireComponent) {
-      const {load, maxSatisfying} = this;
+  const load = (function () {
       return ({
-        local() {
-          const versions = load.local(name);
-          return maxSatisfying(versions, range)
+        local(name: ComponentName): SemVer[] {
+          return get(name)
         },
 
-        async remote() {
-          const remote = await load.remote(name);
-          const latest = this.single(remote.latest)
-          if (latest) {
-            return latest;
+        async remote(name: ComponentName): Promise<{ versions: SemVer[], latest: SemVer }> {
+          const moduleMetadata = await fetchVersions(name);
+
+          return {
+            versions: Object.keys(moduleMetadata.versions).filter(isSemVer),
+            latest: moduleMetadata?.["dist-tags"]?.latest
           }
-
-          return maxSatisfying(remote.versions, range)
-
         },
-
-        single(ver: SemVer) {
-          return maxSatisfying([ver], range);
-        }
       })
-    },
+    }
+  )();
 
+  function maxSatisfying(versions: SemVer[], range: SemVerRange) {
+    return semver.maxSatisfying(versions, range)
+  }
+
+  function match({name, range}: RequireComponent) {
+    function single(ver: SemVer) {
+      return maxSatisfying([ver], range);
+    }
+
+    return ({
+      local() {
+        const versions = load.local(name);
+        return maxSatisfying(versions, range)
+      },
+
+      async remote() {
+        const remote = await load.remote(name);
+        const latest = single(remote.latest)
+        if (latest) {
+          return latest;
+        }
+
+        return maxSatisfying(remote.versions, range)
+
+      },
+    })
+  }
+
+  return ({
     register(name: ComponentName, version: SemVer) {
       add(name, version)
     },
 
-    maxSatisfying(versions: SemVer[], range: SemVerRange) {
-      return semver.maxSatisfying(versions, range)
-    },
-
     async findCompatible(component: RequireComponent) {
-      const match = this.match(component);
+      const matchVersion = match(component);
 
-      return match.local() ?? await match.remote() ?? NO_COMPATIBLE_FOUND;
+      return matchVersion.local() ?? await matchVersion.remote() ?? NO_COMPATIBLE_FOUND;
     },
   })
 })
