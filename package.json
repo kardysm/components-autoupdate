@@ -64,7 +64,7 @@
     "ui",
     "server driven ui"
   ],
-  "author": "\"Michał Kardyś\" <michal@kardys.dev>",
+  "author": "Michał Kardyś <michal@kardys.dev>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kardysm/components-autoupdate/issues"
