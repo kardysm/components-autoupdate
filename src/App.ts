@@ -32,7 +32,6 @@ function isSemVer(str: string): str is SemVer {
   return semver.valid(str) !== null
 }
 
-type ComponentPackage = unknown;
 const NO_COMPATIBLE_FOUND = 'NO_COMPATIBLE_FOUND';
 const DEFAULT_STORAGE_PREFIX = '@component-versions'
 const PARSE_ERROR = 'failed to parse local storage data';
@@ -77,8 +76,8 @@ const localStorageProxy = () => {
   }
 }
 
-type Store = ReturnType<typeof localStorageProxy>;
-const versionStorage = (store?: Store, prefix?: string) => {
+export type Store = ReturnType<typeof localStorageProxy>;
+export const versionStorage = (store?: Store, prefix?: string) => {
   const {getItem, setItem} = store ?? localStorageProxy();
 
   function key(name: ComponentName) {
@@ -119,14 +118,14 @@ interface FetchComponent {
   fetchComponent<T>(component: Component): Promise<T>
 }
 
-interface FetcherAPI extends FetchComponent, FetchVersions {
+export interface FetcherAPI extends FetchComponent, FetchVersions {
 }
 
 interface Fetcher {
   requestOptions: RequestInit
 }
 
-const fetcher = (registryUrl: string, options?: Fetcher) => {
+export const fetcher = (registryUrl: string, options?: Fetcher) => {
   const {requestOptions} = options ?? {};
   const fn = fetch;
 
@@ -169,7 +168,7 @@ const fetcher = (registryUrl: string, options?: Fetcher) => {
   }
 }
 
-const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
+export const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
   const {get, add} = versionStorageApi;
   const {fetchVersions} = fetcherApi;
 
@@ -230,7 +229,7 @@ const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) 
   })
 })
 
-const loadComponent = (versionApi: ReturnType<typeof versionsApi>, fetchApi: FetchComponent) => {
+export const loadComponent = (versionApi: ReturnType<typeof versionsApi>, fetchApi: FetchComponent) => {
   const {findCompatible} = versionApi;
   const {fetchComponent} = fetchApi
   return async (requireComponent: RequireComponent) => {
@@ -245,26 +244,3 @@ const loadComponent = (versionApi: ReturnType<typeof versionsApi>, fetchApi: Fet
     return fetchComponent(component);
   }
 }
-
-interface InitOptions {
-  storage?: Store,
-  prefix?: string,
-  fetcher: FetcherAPI
-}
-
-function init(options: InitOptions) {
-  const {storage, prefix, fetcher: externalFetcher} = options
-
-  const fetcherApi = externalFetcher ?? fetcher
-  const storeApi = versionStorage(storage, prefix)
-
-  const versionApi = versionsApi(storeApi, fetcherApi);
-
-  return {
-    importComponent: loadComponent(versionApi, fetcherApi),
-    registerVersion: versionApi.register
-  };
-}
-
-const App = init
-export default App;

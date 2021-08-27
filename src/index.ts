@@ -1,7 +1,21 @@
-// import App from './App';
-import reportWebVitals from './reportWebVitals';
+import {fetcher, FetcherAPI, loadComponent, Store, versionsApi, versionStorage} from "./App";
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+interface InitOptions {
+  storage?: Store,
+  prefix?: string,
+  fetcher: FetcherAPI
+}
+
+export function init(options: InitOptions) {
+  const {storage, prefix, fetcher: externalFetcher} = options
+
+  const fetcherApi = externalFetcher ?? fetcher
+  const storeApi = versionStorage(storage, prefix)
+
+  const versionApi = versionsApi(storeApi, fetcherApi);
+
+  return {
+    importComponent: loadComponent(versionApi, fetcherApi),
+    registerVersion: versionApi.register
+  };
+}
