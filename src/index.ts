@@ -4,6 +4,8 @@ import { loadComponent } from "./loadComponent"
 import { versions } from "./versions"
 import { fetcher, FetcherAPI } from "./fetcher"
 import { Store, versionStorage } from "./versionStorage"
+import {isSemVer, SemVer} from "./isSemVer";
+import {isSemVerRange, SemVerRange} from "./isSemVerRange";
 
 interface InitOptions {
   storage?: Store
@@ -11,7 +13,7 @@ interface InitOptions {
   fetcher: FetcherAPI
 }
 
-export type { Store, FetcherAPI }
+export type { Store, FetcherAPI, SemVer, SemVerRange }
 
 export function init(options: InitOptions) {
   const { storage, prefix, fetcher: externalFetcher } = options
@@ -24,5 +26,7 @@ export function init(options: InitOptions) {
   return {
     importComponent: loadComponent(versionsApi, fetcherApi),
     registerVersion: versionsApi.register,
+    isSemVer,
+    isSemVerRange
   }
 }
