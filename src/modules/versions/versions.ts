@@ -1,5 +1,5 @@
 import semver from "semver"
-import { NO_COMPATIBLE_FOUND } from "../../constants"
+import { NO_COMPATIBLE_FOUND } from "../constants"
 import { ComponentName, RequireComponent } from "../helper-types/component"
 import { FetchVersions } from "../fetcher"
 import { versionStorage } from "./versionStorage"

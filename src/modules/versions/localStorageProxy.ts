@@ -1,5 +1,5 @@
 import { SemVer } from "../semver"
-import { PARSE_ERROR } from "../../constants"
+import { PARSE_ERROR } from "../constants"
 
 export const localStorageProxy = () => {
   function deserialize(data: string | null): SemVer[] {

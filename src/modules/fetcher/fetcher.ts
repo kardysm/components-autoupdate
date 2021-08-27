@@ -1,5 +1,5 @@
 import { resolve as resolvePath } from "path"
-import { FETCH_ERROR } from "../../constants"
+import { FETCH_ERROR } from "../constants"
 import { Component, ComponentName } from "../helper-types/component"
 import { VersionsRegistryExpectedResult } from "../helper-types/externalPayload"
 

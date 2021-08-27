@@ -1,4 +1,4 @@
-import { DEFAULT_STORAGE_PREFIX } from "../../constants"
+import { DEFAULT_STORAGE_PREFIX } from "../constants"
 import { ComponentName } from "../helper-types/component/Component.types"
 import { SemVer } from "../semver"
 import { localStorageProxy } from "./localStorageProxy"

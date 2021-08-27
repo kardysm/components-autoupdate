@@ -1,5 +1,5 @@
 import { RequireComponent } from "../helper-types/component/Component.types"
-import { NO_COMPATIBLE_FOUND } from "../../constants"
+import { NO_COMPATIBLE_FOUND } from "../constants"
 import { versions } from "../versions"
 import { FetchComponent } from "../fetcher"
 
