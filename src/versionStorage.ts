@@ -1,5 +1,6 @@
 import {DEFAULT_STORAGE_PREFIX, PARSE_ERROR} from "./constants";
-import {ComponentName, SemVer} from "./App";
+import {ComponentName} from "./App";
+import {SemVer} from "./isSemVer";
 
 export type Store = ReturnType<typeof localStorageProxy>;
 

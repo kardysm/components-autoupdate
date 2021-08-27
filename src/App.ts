@@ -1,7 +1,5 @@
-import semver from 'semver';
+import {SemVer} from "./isSemVer";
 
-
-export type SemVer = string & { readonly type: unique symbol }
 export type SemVerRange = SemVer
 export type ComponentName = string & { readonly type: unique symbol }
 
@@ -26,9 +24,6 @@ export interface VersionsRegistryExpectedResult {
   }
 }
 
-export function isSemVer(str: string): str is SemVer {
-  return semver.valid(str) !== null
-}
 
 
 
