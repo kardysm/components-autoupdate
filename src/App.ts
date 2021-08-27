@@ -2,6 +2,7 @@ import semver from 'semver';
 import {resolve as resolvePath} from "path";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'ts-generic-fetch'
+import {DEFAULT_STORAGE_PREFIX, FETCH_ERROR, NO_COMPATIBLE_FOUND, PARSE_ERROR} from "./constants";
 
 type SemVer = string & { readonly type: unique symbol }
 type SemVerRange = SemVer
@@ -32,13 +33,9 @@ function isSemVer(str: string): str is SemVer {
   return semver.valid(str) !== null
 }
 
-const NO_COMPATIBLE_FOUND = 'NO_COMPATIBLE_FOUND';
-const DEFAULT_STORAGE_PREFIX = '@component-versions'
-const PARSE_ERROR = 'failed to parse local storage data';
-const FETCH_ERROR = 'an error occured during components repository request';
+
 
 // TODO: tests
-// TODO: registry interceptor
 
 type StorageAPI = ReturnType<typeof versionStorage>;
 
@@ -114,7 +111,7 @@ interface FetchVersions {
   fetchVersions(componentName: ComponentName): Promise<VersionsRegistryExpectedResult>,
 }
 
-interface FetchComponent {
+export interface FetchComponent {
   fetchComponent<T>(component: Component): Promise<T>
 }
 
@@ -229,18 +226,3 @@ export const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVer
   })
 })
 
-export const loadComponent = (versionApi: ReturnType<typeof versionsApi>, fetchApi: FetchComponent) => {
-  const {findCompatible} = versionApi;
-  const {fetchComponent} = fetchApi
-  return async (requireComponent: RequireComponent) => {
-    const compatible = await findCompatible(requireComponent)
-
-    if (compatible === NO_COMPATIBLE_FOUND) {
-      return null;
-    }
-
-    const component = {name: requireComponent.name, version: compatible};
-
-    return fetchComponent(component);
-  }
-}
