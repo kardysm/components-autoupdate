@@ -15,10 +15,6 @@ export interface FetchComponent {
 
 export interface FetcherApi extends FetchComponent, FetchVersions {}
 
-interface Fetcher {
-  requestOptions: RequestInit
-}
-
 export const DEFAULT_VERSIONS_REGISTRY = '://registry.npmjs.org/'
 export const DEFAULT_COMPONENTS_REGISTRY = '://unpkg.com/'
 
