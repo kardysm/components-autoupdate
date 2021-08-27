@@ -82,7 +82,7 @@ export const versionStorage = (store?: Store, prefix?: string) => {
     return `${pref}:${name}`;
   }
 
-  function dedup(versions: SemVer[]) {
+  function deduplicate(versions: SemVer[]) {
     return [...new Set(versions)]
   }
 
@@ -97,7 +97,7 @@ export const versionStorage = (store?: Store, prefix?: string) => {
   function add(name: ComponentName, version: SemVer): void {
     const currentVersions = get(name);
 
-    set(name, [...currentVersions, version])
+    set(name, deduplicate([...currentVersions, version]))
   }
 
   return ({
