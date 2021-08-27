@@ -260,7 +260,10 @@ function init(options: InitOptions) {
 
   const versionApi = versionsApi(storeApi, fetcherApi);
 
-  return loadComponent(versionApi, fetcherApi);
+  return {
+    importComponent: loadComponent(versionApi, fetcherApi),
+    registerVersion: versionApi.register
+  };
 }
 
 const App = init
