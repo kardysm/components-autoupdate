@@ -1,6 +1,6 @@
 import semver from "semver";
 import {NO_COMPATIBLE_FOUND} from "./constants";
-import {ComponentName, RequireComponent} from "./App";
+import {ComponentName, RequireComponent} from "./Component.types";
 import {FetchVersions} from "./fetcher";
 import {versionStorage} from "./versionStorage";
 import {isSemVer, SemVer} from "./isSemVer";

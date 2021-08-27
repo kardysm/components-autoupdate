@@ -1,8 +1,7 @@
 import {SemVer} from "./isSemVer";
 import {SemVerRange} from "./isSemVerRange";
 
-export type ComponentName = string & { readonly type: unique symbol }
-
+export type ComponentName = string
 
 export interface Component {
   name: ComponentName
@@ -13,10 +12,4 @@ export interface RequireComponent {
   name: ComponentName
   range: SemVerRange
 }
-
-
-
-
-
-// TODO: tests
 

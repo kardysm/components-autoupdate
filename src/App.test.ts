@@ -1,4 +1,4 @@
-import App, {RequireComponent} from "./App";
+import App, {RequireComponent} from "./Component.types";
 
 describe('App',() => {
   it('should work', function () {

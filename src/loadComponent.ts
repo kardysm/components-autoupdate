@@ -1,4 +1,4 @@
-import {RequireComponent} from "./App";
+import {RequireComponent} from "./Component.types";
 import {NO_COMPATIBLE_FOUND} from "./constants";
 import {versions} from "./versions";
 import {FetchComponent} from "./fetcher";

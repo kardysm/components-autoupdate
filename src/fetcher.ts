@@ -1,6 +1,6 @@
 import {resolve as resolvePath} from "path";
 import {FETCH_ERROR} from "./constants";
-import {Component, ComponentName} from "./App";
+import {Component, ComponentName} from "./Component.types";
 import {VersionsRegistryExpectedResult} from "./externalApi.types";
 
 export interface FetchVersions {

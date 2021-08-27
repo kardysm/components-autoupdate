@@ -1,5 +1,5 @@
 import {DEFAULT_STORAGE_PREFIX} from "./constants";
-import {ComponentName} from "./App";
+import {ComponentName} from "./Component.types";
 import {SemVer} from "./isSemVer";
 import {localStorageProxy} from "./localStorageProxy";
 
