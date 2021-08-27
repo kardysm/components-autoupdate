@@ -21,6 +21,8 @@ interface InitOptions {
 
 export type { Store, FetcherApi, SemVer, SemVerRange }
 
+// TODO: tests
+
 export function init(options: InitOptions) {
   const { storage, prefix, fetcher: externalFetcher } = options
 
