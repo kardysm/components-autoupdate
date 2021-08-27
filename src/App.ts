@@ -1,6 +1,6 @@
 import {SemVer} from "./isSemVer";
+import {SemVerRange} from "./isSemVerRange";
 
-export type SemVerRange = SemVer
 export type ComponentName = string & { readonly type: unique symbol }
 
 type VersionData = unknown

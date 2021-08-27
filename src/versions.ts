@@ -1,16 +1,16 @@
 import semver from "semver";
 import {NO_COMPATIBLE_FOUND} from "./constants";
-import {ComponentName, RequireComponent, SemVerRange} from "./App";
+import {ComponentName, RequireComponent} from "./App";
 import {FetchVersions} from "./fetcher";
 import {versionStorage} from "./versionStorage";
 import {isSemVer, SemVer} from "./isSemVer";
+import {SemVerRange} from "./isSemVerRange";
 
 type StorageAPI = ReturnType<typeof versionStorage>;
 
 export const versions = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
   const {get, add} = versionStorageApi;
   const {fetchVersions} = fetcherApi;
-
   const load = (function loadVersions() {
       return ({
         local(name: ComponentName): SemVer[] {
@@ -29,8 +29,8 @@ export const versions = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersio
     }
   )();
 
-  function maxSatisfying(versions: SemVer[], range: SemVerRange) {
-    return semver.maxSatisfying(versions, range)
+  function maxSatisfying(verArr: SemVer[], range: SemVerRange) {
+    return semver.maxSatisfying(verArr, range)
   }
 
   function match({name, range}: RequireComponent) {
@@ -40,8 +40,8 @@ export const versions = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersio
 
     return ({
       local() {
-        const versions = load.local(name);
-        return maxSatisfying(versions, range)
+        const localVersions = load.local(name);
+        return maxSatisfying(localVersions, range)
       },
 
       async remote() {
