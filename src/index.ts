@@ -1,12 +1,19 @@
-import {Store, versionStorage} from "./App";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'ts-generic-fetch';
 import {loadComponent} from "./loadComponent";
 import {versionsApi} from "./versionsApi";
 import {fetcher, FetcherAPI} from "./fetcher";
+import {Store, versionStorage} from "./versionStorage";
 
 interface InitOptions {
   storage?: Store,
   prefix?: string,
   fetcher: FetcherAPI
+}
+
+export type {
+  Store,
+  FetcherAPI
 }
 
 export function init(options: InitOptions) {
