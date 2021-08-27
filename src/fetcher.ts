@@ -29,7 +29,7 @@ export const fetcher = (registryUrl: string, options?: Fetcher) => {
       return await result.json();
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.log(`Component|repository: ${FETCH_ERROR}: ${error}`)
+      console.error(`Component|repository: ${FETCH_ERROR}: ${error}`)
       return error;
     }
   }
