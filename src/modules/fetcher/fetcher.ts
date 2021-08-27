@@ -19,12 +19,14 @@ interface Fetcher {
   requestOptions: RequestInit
 }
 
-export const fetcher = (registryUrl: string, options?: Fetcher) => {
-  const { requestOptions } = options ?? {}
+export const DEFAULT_VERSIONS_REGISTRY = '://registry.npmjs.org/'
+export const DEFAULT_COMPONENTS_REGISTRY = '://unpkg.com/'
+
+export const fetcher: FetcherApi = (() => {
   const fn = fetch
 
   async function requestData<Data>(url: string): Promise<Data> {
-    const result = await fn<Data>(url, requestOptions)
+    const result = await fn<Data>(url)
     try {
       return await result.json()
     } catch (error) {
@@ -35,12 +37,12 @@ export const fetcher = (registryUrl: string, options?: Fetcher) => {
   }
 
   function versionsUrl(componentName: ComponentName) {
-    return resolvePath(registryUrl, componentName)
+    return resolvePath(DEFAULT_VERSIONS_REGISTRY, componentName)
   }
 
   function componentUrl(component: Component) {
     const { version, name } = component
-    return resolvePath(registryUrl, `${name}@${version}`)
+    return resolvePath(DEFAULT_COMPONENTS_REGISTRY, `${name}@${version}`)
   }
 
   function fetchVersions(componentName: ComponentName) {
@@ -59,4 +61,4 @@ export const fetcher = (registryUrl: string, options?: Fetcher) => {
     fetchVersions,
     fetchComponent,
   }
-}
+})()

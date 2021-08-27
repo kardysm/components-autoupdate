@@ -14,9 +14,9 @@ import {
 } from "./modules"
 
 interface InitOptions {
+  fetcher?: FetcherApi
   storage?: Store
   prefix?: string
-  fetcher: FetcherApi
 }
 
 export type { Store, FetcherApi, SemVer, SemVerRange }
