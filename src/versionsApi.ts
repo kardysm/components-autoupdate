@@ -1,6 +1,7 @@
 import semver from "semver";
 import {NO_COMPATIBLE_FOUND} from "./constants";
-import {ComponentName, FetchVersions, isSemVer, RequireComponent, SemVer, SemVerRange, versionStorage} from "./App";
+import {ComponentName, isSemVer, RequireComponent, SemVer, SemVerRange, versionStorage} from "./App";
+import {FetchVersions} from "./fetcher";
 
 type StorageAPI = ReturnType<typeof versionStorage>;
 
