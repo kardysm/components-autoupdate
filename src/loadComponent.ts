@@ -1,5 +1,6 @@
-import {FetchComponent, RequireComponent, versionsApi} from "./App";
+import {FetchComponent, RequireComponent} from "./App";
 import {NO_COMPATIBLE_FOUND} from "./constants";
+import {versionsApi} from "./versionsApi";
 
 export const loadComponent = (versionApi: ReturnType<typeof versionsApi>, fetchApi: FetchComponent) => {
   const {findCompatible} = versionApi;

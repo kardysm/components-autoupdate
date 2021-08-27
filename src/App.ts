@@ -2,11 +2,11 @@ import semver from 'semver';
 import {resolve as resolvePath} from "path";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'ts-generic-fetch'
-import {DEFAULT_STORAGE_PREFIX, FETCH_ERROR, NO_COMPATIBLE_FOUND, PARSE_ERROR} from "./constants";
+import {DEFAULT_STORAGE_PREFIX, FETCH_ERROR, PARSE_ERROR} from "./constants";
 
-type SemVer = string & { readonly type: unique symbol }
-type SemVerRange = SemVer
-type ComponentName = string & { readonly type: unique symbol }
+export type SemVer = string & { readonly type: unique symbol }
+export type SemVerRange = SemVer
+export type ComponentName = string & { readonly type: unique symbol }
 
 type VersionData = unknown
 
@@ -29,7 +29,7 @@ export interface VersionsRegistryExpectedResult {
   }
 }
 
-function isSemVer(str: string): str is SemVer {
+export function isSemVer(str: string): str is SemVer {
   return semver.valid(str) !== null
 }
 
@@ -37,7 +37,7 @@ function isSemVer(str: string): str is SemVer {
 
 // TODO: tests
 
-type StorageAPI = ReturnType<typeof versionStorage>;
+
 
 const localStorageProxy = () => {
   function deserialize(data: string | null): SemVer[] {
@@ -107,7 +107,7 @@ export const versionStorage = (store?: Store, prefix?: string) => {
   })
 }
 
-interface FetchVersions {
+export interface FetchVersions {
   fetchVersions(componentName: ComponentName): Promise<VersionsRegistryExpectedResult>,
 }
 
@@ -165,64 +165,4 @@ export const fetcher = (registryUrl: string, options?: Fetcher) => {
   }
 }
 
-export const versionsApi = ((versionStorageApi: StorageAPI, fetcherApi: FetchVersions) => {
-  const {get, add} = versionStorageApi;
-  const {fetchVersions} = fetcherApi;
-
-  return ({
-    load: (() => ({
-      local(name: ComponentName): SemVer[] {
-        return get(name)
-      },
-
-      async remote(name: ComponentName): Promise<{ versions: SemVer[], latest: SemVer }> {
-        const moduleMetadata = await fetchVersions(name);
-
-        return {
-          versions: Object.keys(moduleMetadata.versions).filter(isSemVer),
-          latest: moduleMetadata?.["dist-tags"]?.latest
-        }
-      },
-    }))(),
-
-    match({name, range}: RequireComponent) {
-      const {load, maxSatisfying} = this;
-      return ({
-        local() {
-          const versions = load.local(name);
-          return maxSatisfying(versions, range)
-        },
-
-        async remote() {
-          const remote = await load.remote(name);
-          const latest = this.single(remote.latest)
-          if (latest) {
-            return latest;
-          }
-
-          return maxSatisfying(remote.versions, range)
-
-        },
-
-        single(ver: SemVer) {
-          return maxSatisfying([ver], range);
-        }
-      })
-    },
-
-    register(name: ComponentName, version: SemVer) {
-      add(name, version)
-    },
-
-    maxSatisfying(versions: SemVer[], range: SemVerRange) {
-      return semver.maxSatisfying(versions, range)
-    },
-
-    async findCompatible(component: RequireComponent) {
-      const match = this.match(component);
-
-      return match.local() ?? await match.remote() ?? NO_COMPATIBLE_FOUND;
-    },
-  })
-})
 

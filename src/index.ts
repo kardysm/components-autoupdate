@@ -1,5 +1,6 @@
-import {fetcher, FetcherAPI, Store, versionsApi, versionStorage} from "./App";
+import {fetcher, FetcherAPI, Store, versionStorage} from "./App";
 import {loadComponent} from "./loadComponent";
+import {versionsApi} from "./versionsApi";
 
 interface InitOptions {
   storage?: Store,
