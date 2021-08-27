@@ -1,5 +1,5 @@
-import {SemVer} from "./isSemVer";
-import {SemVerRange} from "./isSemVerRange";
+import { SemVer } from "./isSemVer"
+import { SemVerRange } from "./isSemVerRange"
 
 export type ComponentName = string
 
@@ -12,4 +12,3 @@ export interface RequireComponent {
   name: ComponentName
   range: SemVerRange
 }
-

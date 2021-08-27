@@ -1,5 +1,5 @@
-import {SemVer} from "./isSemVer";
-import {PARSE_ERROR} from "./constants";
+import { SemVer } from "./isSemVer"
+import { PARSE_ERROR } from "./constants"
 
 export const localStorageProxy = () => {
   function deserialize(data: string | null): SemVer[] {
@@ -20,17 +20,17 @@ export const localStorageProxy = () => {
   }
 
   function getItem(key: string) {
-    const serialized = localStorage.getItem(key);
-    return deserialize(serialized);
+    const serialized = localStorage.getItem(key)
+    return deserialize(serialized)
   }
 
   function setItem(key: string, data: SemVer[]) {
-    const serialized = serialize(data);
-    localStorage.setItem(key, serialized);
+    const serialized = serialize(data)
+    localStorage.setItem(key, serialized)
   }
 
   return {
     getItem,
-    setItem
+    setItem,
   }
 }

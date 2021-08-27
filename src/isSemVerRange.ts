@@ -1,4 +1,4 @@
-import semver from "semver";
+import semver from "semver"
 
 export type SemVerRange = string & { readonly type: unique symbol }
 
